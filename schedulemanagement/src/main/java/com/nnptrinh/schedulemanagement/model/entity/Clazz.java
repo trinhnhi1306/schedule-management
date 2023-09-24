@@ -1,5 +1,4 @@
 package com.nnptrinh.schedulemanagement.model.entity;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nnptrinh.schedulemanagement.model.entity.audit.BaseEntity;
 import com.nnptrinh.schedulemanagement.model.enums.EClassType;
 import com.nnptrinh.schedulemanagement.model.enums.ETrainingType;
@@ -10,7 +9,6 @@ import lombok.Data;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -18,6 +16,11 @@ import java.util.Set;
 @Table(name = "clazz")
 @EntityListeners(AuditingEntityListener.class)
 public class Clazz extends BaseEntity {
+
+    @NotBlank(message = "Name cannot be blank")
+    @NotNull
+    @Column(name = "name", length = 200, unique = true)
+    private String name;
 
     @NotNull(message = "Training type cannot be null")
     @Column(name = "training_type")
@@ -30,6 +33,7 @@ public class Clazz extends BaseEntity {
     private EClassType classType;
 
     @NotBlank(message = "Link cannot be blank")
+    @NotNull
     @Column(name = "link", length = 500)
     private String link;
 
@@ -50,7 +54,7 @@ public class Clazz extends BaseEntity {
     private Set<TrainingSchedule> trainingSchedules;
 
     @ManyToMany(mappedBy = "clazzes")
-    private Set<User> trainees;
+    private Set<UserEntity> trainees;
 
 }
 

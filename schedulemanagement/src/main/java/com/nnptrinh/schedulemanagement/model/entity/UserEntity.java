@@ -1,5 +1,4 @@
 package com.nnptrinh.schedulemanagement.model.entity;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nnptrinh.schedulemanagement.model.entity.audit.BaseEntity;
 import com.nnptrinh.schedulemanagement.model.enums.ERole;
 import jakarta.persistence.*;
@@ -8,20 +7,21 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Table(name = "users")
 @Data
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class User extends BaseEntity {
+public class UserEntity extends BaseEntity {
 
     @NotBlank(message = "Username cannot be blank")
-    @Column(name = "username")
+    @NotNull
+    @Column(name = "username", unique = true)
     private String username;
 
     @NotBlank(message = "Password cannot be blank")
+    @NotNull
     @Column(name = "password")
     private String password;
 
@@ -30,14 +30,12 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ERole role;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
-    @NotBlank(message = "First name cannot be blank")
     @Column(name = "first_name")
     private String firstName;
 
-    @NotBlank(message = "Last name cannot be blank")
     @Column(name = "last_name")
     private String lastName;
 

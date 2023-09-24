@@ -31,4 +31,20 @@ public class CourseController {
         }
         return AppUtils.returnJS(HttpStatus.OK, "Create course successfully!", courseService.add(course), true);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseObject> updateOne(@PathVariable Long id, @Validated @RequestBody Course course, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return AppUtils.returnJS(HttpStatus.BAD_REQUEST, bindingResult.getAllErrors().get(0).getDefaultMessage(), null, false);
+        }
+        return AppUtils.returnJS(HttpStatus.OK, "Update course successfully!", courseService.update(id, course), true);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseObject> deleteOne(@PathVariable Long id) {
+        if (!courseService.delete(id)) {
+            return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Course is not found!", null, false);
+        }
+        return AppUtils.returnJS(HttpStatus.OK, "Delete course successfully!", null, true);
+    }
 }

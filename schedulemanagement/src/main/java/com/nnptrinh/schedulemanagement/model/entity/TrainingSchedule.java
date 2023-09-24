@@ -3,6 +3,7 @@ import com.nnptrinh.schedulemanagement.model.entity.audit.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -16,8 +17,9 @@ import java.util.Set;
 public class TrainingSchedule extends BaseEntity {
 
     @NotBlank(message = "Session name cannot be blank")
-    @Column(name = "session_name", length = 200)
-    private Date sessionName;
+    @NotNull
+    @Column(name = "session_name", length = 200, unique = true)
+    private String sessionName;
 
     @FutureOrPresent(message = "Datetime should be future or present")
     @Column(name = "date_time")
@@ -31,7 +33,7 @@ public class TrainingSchedule extends BaseEntity {
     private Clazz clazz;
 
     @ManyToMany(mappedBy = "trainingSchedules")
-    private Set<User> trainers;
+    private Set<UserEntity> trainers;
 
 }
 
