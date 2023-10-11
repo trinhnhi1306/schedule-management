@@ -1,17 +1,22 @@
 package com.nnptrinh.schedulemanagement.service;
 
+import com.nnptrinh.schedulemanagement.model.dto.ClazzDTO;
+import com.nnptrinh.schedulemanagement.model.model.ClazzModel;
+import com.nnptrinh.schedulemanagement.model.model.ResponsePage;
 import com.nnptrinh.schedulemanagement.model.entity.Clazz;
 
 import java.util.List;
 
 public interface IClazzService {
-    List<Clazz> getAll();
+    List<ClazzDTO> getAll();
 
-    Clazz getById(Long clazzId);
+    ResponsePage<ClazzDTO> getPage(int pageNum, int pageSize, String sortField, String sortDir);
 
-    Clazz add(Clazz clazz);
+    ClazzDTO getById(Long clazzId);
 
-    Clazz update(Long clazzId, Clazz clazzModel);
+    ClazzDTO add(ClazzModel clazzModel);
 
-    boolean delete(Long clazzId);
+    ClazzDTO update(Long clazzId, ClazzModel clazzModel);
+
+    Boolean delete(Long clazzId);
 }

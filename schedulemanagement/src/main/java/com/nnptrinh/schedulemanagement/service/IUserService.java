@@ -1,17 +1,24 @@
 package com.nnptrinh.schedulemanagement.service;
 
-import com.nnptrinh.schedulemanagement.model.entity.UserEntity;
+import com.nnptrinh.schedulemanagement.model.dto.UserDTO;
+import com.nnptrinh.schedulemanagement.model.model.RegisterRequest;
+import com.nnptrinh.schedulemanagement.model.model.ResponsePage;
+import com.nnptrinh.schedulemanagement.model.model.UserModel;
 
 import java.util.List;
 
 public interface IUserService {
-    List<UserEntity> getAll();
+    List<UserDTO> getAll();
 
-    UserEntity getById(Long id);
+    ResponsePage<UserDTO> getPage(int pageNum, int pageSize, String sortField, String sortDir);
 
-    UserEntity add(UserEntity userEntity);
+    UserDTO getById(Long id);
 
-    UserEntity update(Long id, UserEntity userEntityModel);
+    UserDTO add(UserModel userModel);
 
-    boolean delete(Long id);
+    UserDTO register(RegisterRequest registerRequest);
+
+    UserDTO update(Long id, UserModel userModel);
+
+    Boolean delete(Long id);
 }

@@ -1,7 +1,9 @@
 package com.nnptrinh.schedulemanagement.controller;
 
+import com.nnptrinh.schedulemanagement.constant.Constant;
 import com.nnptrinh.schedulemanagement.exception.AppUtils;
 import com.nnptrinh.schedulemanagement.exception.ResponseObject;
+import com.nnptrinh.schedulemanagement.model.model.CourseModel;
 import com.nnptrinh.schedulemanagement.model.entity.Course;
 import com.nnptrinh.schedulemanagement.service.impl.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +13,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/courses")
 public class CourseController {
@@ -19,32 +20,40 @@ public class CourseController {
     @Autowired
     CourseService courseService;
 
-    @GetMapping
+    @GetMapping(value = "/all")
     public ResponseEntity<ResponseObject> listAll() {
         return AppUtils.returnJS(HttpStatus.OK, "Retrieve list of courses successfully!", courseService.getAll(), true);
     }
 
+    @GetMapping
+    public ResponseEntity<ResponseObject> listPage(
+            @RequestParam(name = Constant.PAGE_NUM, defaultValue = Constant.DEFAULT_VALUE_PAGE_NUM) int pageNum,
+            @RequestParam(name = Constant.PAGE_SIZE, defaultValue = Constant.DEFAULT_VALUE_PAGE_SIZE) int pageSize,
+            @RequestParam(name = Constant.SORT_FIELD, defaultValue = Constant.DEFAULT_VALUE_SORT_FIELD) String sortField,
+            @RequestParam(name = Constant.SORT_DIR, defaultValue = Constant.DEFAULT_VALUE_SORT_DIR) String sortDir) {
+        return AppUtils.returnJS(HttpStatus.OK, "Retrieve page of courses successfully!", courseService.getPage(pageNum, pageSize, sortField, sortDir), true);
+    }
+
     @PostMapping
-    public ResponseEntity<ResponseObject> createNewOne(@Validated @RequestBody Course course, BindingResult bindingResult) {
+    public ResponseEntity<ResponseObject> createNewOne(@Validated @RequestBody CourseModel courseModel, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return AppUtils.returnJS(HttpStatus.BAD_REQUEST, bindingResult.getAllErrors().get(0).getDefaultMessage(), null, false);
         }
-        return AppUtils.returnJS(HttpStatus.OK, "Create course successfully!", courseService.add(course), true);
+
+        return AppUtils.returnJS(HttpStatus.OK, "Create course successfully!", courseService.add(courseModel), true);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateOne(@PathVariable Long id, @Validated @RequestBody Course course, BindingResult bindingResult) {
+    public ResponseEntity<ResponseObject> updateOne(@PathVariable Long id, @Validated @RequestBody CourseModel courseModel, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return AppUtils.returnJS(HttpStatus.BAD_REQUEST, bindingResult.getAllErrors().get(0).getDefaultMessage(), null, false);
         }
-        return AppUtils.returnJS(HttpStatus.OK, "Update course successfully!", courseService.update(id, course), true);
+
+        return AppUtils.returnJS(HttpStatus.OK, "Update course successfully!", courseService.update(id, courseModel), true);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> deleteOne(@PathVariable Long id) {
-        if (!courseService.delete(id)) {
-            return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Course is not found!", null, false);
-        }
-        return AppUtils.returnJS(HttpStatus.OK, "Delete course successfully!", null, true);
+        return AppUtils.returnJS(HttpStatus.OK, "Delete course successfully!", courseService.delete(id), true);
     }
 }

@@ -4,19 +4,16 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Table(name = "course")
 @Data
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 public class Course extends BaseEntity {
 
     @NotBlank(message = "Name cannot be blank")
-    @NotNull
+    @NotNull(message = "Name cannot be null")
     @Column(name = "name", length = 200, unique = true)
     private String name;
 
@@ -24,7 +21,7 @@ public class Course extends BaseEntity {
     private String description;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private Set<Clazz> clazzes = new HashSet<>();
+    private List<Clazz> clazzes;
 
 }
 

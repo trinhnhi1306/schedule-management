@@ -1,18 +1,23 @@
 package com.nnptrinh.schedulemanagement.service;
 
+import com.nnptrinh.schedulemanagement.model.dto.CourseDTO;
+import com.nnptrinh.schedulemanagement.model.model.CourseModel;
+import com.nnptrinh.schedulemanagement.model.model.ResponsePage;
 import com.nnptrinh.schedulemanagement.model.entity.Course;
 
 import java.util.List;
 
 public interface ICourseService {
-    List<Course> getAll();
+    List<CourseDTO> getAll();
 
-    Course getById(Long courseId);
+    ResponsePage<CourseDTO> getPage(int pageNum, int pageSize, String sortField, String sortDir);
 
-    Course add(Course course);
+    CourseDTO getById(Long courseId);
 
-    Course update(Long courseId, Course courseModel);
+    CourseDTO add(CourseModel courseModel);
 
-    boolean delete(Long courseId);
+    CourseDTO update(Long courseId, CourseModel courseModel);
+
+    Boolean delete(Long courseId);
 
 }

@@ -1,60 +1,34 @@
 package com.nnptrinh.schedulemanagement.model.entity;
 import com.nnptrinh.schedulemanagement.model.entity.audit.BaseEntity;
-import com.nnptrinh.schedulemanagement.model.enums.EClassType;
-import com.nnptrinh.schedulemanagement.model.enums.ETrainingType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Entity
 @Table(name = "clazz")
-@EntityListeners(AuditingEntityListener.class)
 public class Clazz extends BaseEntity {
 
     @NotBlank(message = "Name cannot be blank")
-    @NotNull
+    @NotNull(message = "Name cannot be null")
     @Column(name = "name", length = 200, unique = true)
     private String name;
 
-    @NotNull(message = "Training type cannot be null")
-    @Column(name = "training_type")
-    @Enumerated(EnumType.STRING)
-    private ETrainingType trainingType;
-
-    @NotNull(message = "Class type type cannot be null")
-    @Column(name = "class_type")
-    @Enumerated(EnumType.STRING)
-    private EClassType classType;
-
-    @NotBlank(message = "Link cannot be blank")
-    @NotNull
-    @Column(name = "link", length = 500)
-    private String link;
-
-    @Column(name = "room_information", length = 500)
-    private String roomInformation;
-
-    @Column(name = "passcode", length = 10)
-    private String passcode;
-
-    @Column(name = "guideline", length = 500)
-    private Date guideline;
+    @Column(name = "description", length = 700)
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
 
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL)
-    private Set<TrainingSchedule> trainingSchedules;
+    private List<TrainingSchedule> trainingSchedules;
 
-    @ManyToMany(mappedBy = "clazzes")
-    private Set<UserEntity> trainees;
+    @ManyToMany
+    @JoinTable(name = "trainee_clazz", joinColumns = @JoinColumn(name = "clazz_id"), inverseJoinColumns = @JoinColumn(name = "trainee_id"))
+    private List<User> trainees;
 
 }
-

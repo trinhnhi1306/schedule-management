@@ -7,13 +7,16 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 @MappedSuperclass
-@NoArgsConstructor
-public abstract class BaseEntity {
+@EntityListeners(AuditingEntityListener.class)
+public abstract class BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,12 +25,12 @@ public abstract class BaseEntity {
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at")
     protected LocalDateTime createdAt;
 
     @CreatedBy
-    @Column(name = "created_by", nullable = false, updatable = false)
-    protected String createdBy;
+    @Column(name = "created_by")
+    protected Long createdBy;
 
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
@@ -36,7 +39,12 @@ public abstract class BaseEntity {
 
     @LastModifiedBy
     @Column(name = "updated_by")
-    protected String updatedBy;
+    protected Long updatedBy;
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, createdBy, updatedBy, createdAt, updatedAt);
+    }
 
     @Override
     public String toString() {

@@ -1,17 +1,27 @@
 package com.nnptrinh.schedulemanagement.service;
 
+import com.nnptrinh.schedulemanagement.model.dto.TrainingScheduleDTO;
+import com.nnptrinh.schedulemanagement.model.model.ResponsePage;
+import com.nnptrinh.schedulemanagement.model.model.TrainingScheduleModel;
 import com.nnptrinh.schedulemanagement.model.entity.TrainingSchedule;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ITrainingScheduleService {
-    List<TrainingSchedule> getAll();
+    List<TrainingScheduleDTO> getAll();
 
-    TrainingSchedule getById(Long id);
+    ResponsePage<TrainingScheduleDTO> getPage(int pageNum, int pageSize, String sortField, String sortDir);
 
-    TrainingSchedule add(TrainingSchedule schedule);
+    List<TrainingScheduleDTO> getAllByClazzId(Long clazzId);
 
-    TrainingSchedule update(Long id, TrainingSchedule scheduleModel);
+    TrainingScheduleDTO getById(Long id);
 
-    boolean delete(Long id);
+    TrainingScheduleDTO add(TrainingScheduleModel scheduleModel);
+
+    TrainingScheduleDTO update(Long id, TrainingScheduleModel scheduleModel);
+
+    Boolean delete(Long id);
+
+    TrainingScheduleDTO updateTrainers(TrainingSchedule schedule, Set<Long> trainerIds);
 }
