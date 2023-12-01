@@ -78,7 +78,6 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    @Cacheable(value = "trainers")
     public List<UserDTO> getByRole(ERole role) {
         System.out.println("List<UserDTO> getByRole(ERole role)");
         return Arrays.asList(mapper.map(userRepository.findAllByRole(role), UserDTO[].class));

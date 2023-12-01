@@ -1,9 +1,11 @@
 package com.nnptrinh.schedulemanagement.controller;
 
+import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.nnptrinh.schedulemanagement.constant.Constant;
 import com.nnptrinh.schedulemanagement.exception.AppUtils;
 import com.nnptrinh.schedulemanagement.exception.ResponseObject;
 import com.nnptrinh.schedulemanagement.model.model.TrainingScheduleModel;
+import com.nnptrinh.schedulemanagement.model.model.TrainingScheduleSearch;
 import com.nnptrinh.schedulemanagement.service.impl.TrainingScheduleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +14,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/training-schedules")
 public class TrainingScheduleController {
 
     @Autowired
     TrainingScheduleService trainingScheduleService;
+
+    @GetMapping(value = "/current-location")
+    public ResponseEntity<ResponseObject> getLocation() throws IOException, GeoIp2Exception {
+        return AppUtils.returnJS(HttpStatus.OK, "Retrieve location successfully!", trainingScheduleService.getLocation(), true);
+    }
 
     @GetMapping(value = "/all")
     public ResponseEntity<ResponseObject> listAll() {
@@ -36,6 +45,16 @@ public class TrainingScheduleController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject> getById(@PathVariable Long id) {
         return AppUtils.returnJS(HttpStatus.OK, "Retrieve schedule successfully!", trainingScheduleService.getById(id), true);
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<ResponseObject> search(
+            @RequestParam(name = Constant.PAGE_NUM, defaultValue = Constant.DEFAULT_VALUE_PAGE_NUM) int pageNum,
+            @RequestParam(name = Constant.PAGE_SIZE, defaultValue = Constant.DEFAULT_VALUE_PAGE_SIZE) int pageSize,
+            @RequestParam(name = Constant.SORT_FIELD, defaultValue = Constant.DEFAULT_VALUE_SORT_FIELD) String sortField,
+            @RequestParam(name = Constant.SORT_DIR, defaultValue = Constant.DEFAULT_VALUE_SORT_DIR) String sortDir,
+            @RequestBody TrainingScheduleSearch scheduleSearch) {
+        return AppUtils.returnJS(HttpStatus.OK, "Retrieve schedule successfully!", trainingScheduleService.filterTrainingSchedules(scheduleSearch, pageNum, pageSize, sortField, sortDir), true);
     }
 
     @GetMapping("/clazz/{clazzId}")

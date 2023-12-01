@@ -1,7 +1,6 @@
 package com.nnptrinh.schedulemanagement.service.impl;
 
 import com.nnptrinh.schedulemanagement.model.dto.ClazzDTO;
-import com.nnptrinh.schedulemanagement.model.dto.TrainingScheduleDTO;
 import com.nnptrinh.schedulemanagement.model.model.ClazzModel;
 import com.nnptrinh.schedulemanagement.model.model.ResponsePage;
 import com.nnptrinh.schedulemanagement.model.entity.Clazz;
@@ -10,10 +9,8 @@ import com.nnptrinh.schedulemanagement.service.IClazzService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +28,6 @@ public class ClazzService implements IClazzService {
     ModelMapper mapper;
 
     @Override
-    @Cacheable(value = "clazzes")
     public List<ClazzDTO> getAll() {
         System.out.println("List<ClazzDTO> getAll()");
         return Arrays.asList(mapper.map(clazzRepository.findAll(), ClazzDTO[].class));

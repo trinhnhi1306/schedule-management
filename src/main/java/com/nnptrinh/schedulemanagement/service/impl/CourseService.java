@@ -29,7 +29,6 @@ public class CourseService implements ICourseService {
     ModelMapper mapper;
 
     @Override
-    @Cacheable(value = "courses")
     public List<CourseDTO> getAll() {
         System.out.println("List<CourseDTO> getAll()");
         return Arrays.asList(mapper.map(courseRepository.findAll(), CourseDTO[].class));

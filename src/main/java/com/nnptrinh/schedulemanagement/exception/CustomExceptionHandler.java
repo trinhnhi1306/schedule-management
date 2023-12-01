@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -22,7 +21,7 @@ public class CustomExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseObject handleAllException(Exception ex) {
         log.error("Exception: " + ex.getMessage() + " with type: " + ex.getClass());
-        log.error(Arrays.toString(ex.getStackTrace()));
+        ex.printStackTrace();
         return new ResponseObject(ex.getMessage(), null, false);
     }
 
@@ -30,7 +29,7 @@ public class CustomExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseObject handleAccessDeniedException(AccessDeniedException ex) {
         log.error("Exception: " + ex.getMessage() + " with type: " + ex.getClass());
-        log.error(Arrays.toString(ex.getStackTrace()));
+        ex.printStackTrace();
         return new ResponseObject("You do not have permission for this action", null, false);
     }
 
@@ -38,7 +37,7 @@ public class CustomExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseObject handleRequestException(IllegalArgumentException ex) {
         log.error("Exception: " + ex.getMessage() + " with type: " + ex.getClass());
-        log.error(Arrays.toString(ex.getStackTrace()));
+        ex.printStackTrace();
         return new ResponseObject(ex.getMessage(), null, false);
     }
 
@@ -52,7 +51,7 @@ public class CustomExceptionHandler {
                         .map(DefaultMessageSourceResolvable::getDefaultMessage)
                         .collect(Collectors.joining(", "))
                         + ".";
-        log.error(Arrays.toString(ex.getStackTrace()));
+        ex.printStackTrace();
         return new ResponseObject(errorMessage, null, false);
     }
 
@@ -60,7 +59,7 @@ public class CustomExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseObject handleRequestException(EntityNotFoundException ex) {
         log.error("Exception: " + ex.getMessage() + " with type: " + ex.getClass());
-        log.error(Arrays.toString(ex.getStackTrace()));
+        ex.printStackTrace();
         return new ResponseObject(ex.getMessage(), null, false);
     }
 
@@ -68,7 +67,7 @@ public class CustomExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseObject forbiddenException(ExpiredJwtException ex) {
         log.error("Exception: " + ex.getMessage() + " with type: " + ex.getClass());
-        log.error(Arrays.toString(ex.getStackTrace()));
+        ex.printStackTrace();
         return new ResponseObject(ex.getMessage(), null, false);
     }
 

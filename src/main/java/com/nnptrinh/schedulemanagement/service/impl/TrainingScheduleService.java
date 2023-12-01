@@ -1,12 +1,19 @@
 package com.nnptrinh.schedulemanagement.service.impl;
 
+import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.WebServiceClient;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
+import com.maxmind.geoip2.model.CityResponse;
 import com.nnptrinh.schedulemanagement.model.dto.TrainingScheduleDTO;
 import com.nnptrinh.schedulemanagement.model.dto.UserDTO;
+import com.nnptrinh.schedulemanagement.model.enums.EClazzType;
+import com.nnptrinh.schedulemanagement.model.enums.ETrainingType;
 import com.nnptrinh.schedulemanagement.model.model.ResponsePage;
 import com.nnptrinh.schedulemanagement.model.model.TrainingScheduleModel;
 import com.nnptrinh.schedulemanagement.model.entity.TrainingSchedule;
 import com.nnptrinh.schedulemanagement.model.entity.User;
 import com.nnptrinh.schedulemanagement.model.enums.ERole;
+import com.nnptrinh.schedulemanagement.model.model.TrainingScheduleSearch;
 import com.nnptrinh.schedulemanagement.model.model.UserModel;
 import com.nnptrinh.schedulemanagement.repository.ClazzRepository;
 import com.nnptrinh.schedulemanagement.repository.TrainingScheduleRepository;
@@ -18,13 +25,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static com.nnptrinh.schedulemanagement.service.impl.TrainingScheduleSpecifications.*;
 
 @Service
 public class TrainingScheduleService implements ITrainingScheduleService {
@@ -41,6 +50,13 @@ public class TrainingScheduleService implements ITrainingScheduleService {
     @Autowired
     ModelMapper mapper;
 
+    @Autowired
+    WebServiceClient webServiceClient;
+
+    public CityResponse getLocation() throws IOException, GeoIp2Exception {
+        return webServiceClient.city();
+    }
+
     @Override
     public List<TrainingScheduleDTO> getAll() {
         return Arrays.asList(mapper.map(
@@ -55,22 +71,7 @@ public class TrainingScheduleService implements ITrainingScheduleService {
                 ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
         Page<TrainingSchedule> page = trainingScheduleRepository.findAll(PageRequest.of(pageNum - 1, pageSize, sort));
 
-        return new ResponsePage<>(
-                page.getNumber() + 1,
-                page.getSize(),
-                page.getTotalElements(),
-                page.getTotalPages(),
-                page.getContent()
-                        .stream()
-                        .map(schedule -> {
-                            TrainingScheduleDTO dto = mapper.map(schedule, TrainingScheduleDTO.class);
-                            dto.setOrganizer(
-                                    mapper.map(
-                                            userRepository.findById(schedule.getCreatedBy()).orElse(null),
-                                            UserDTO.class));
-                            return dto;
-                        })
-                        .toList());
+        return getTrainingScheduleDTOResponsePage(page);
     }
 
     @Override
@@ -171,5 +172,41 @@ public class TrainingScheduleService implements ITrainingScheduleService {
         schedule.setTrainers(updatedTrainers);
 
         return mapper.map(trainingScheduleRepository.save(schedule), TrainingScheduleDTO.class);
+    }
+
+    @Override
+    public ResponsePage<TrainingScheduleDTO> filterTrainingSchedules(TrainingScheduleSearch scheduleSearch, int pageNum, int pageSize, String sortField, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+
+        Specification<TrainingSchedule> specification = Specification
+                .where(scheduleSearch.getSessionName() == null ? null : sessionNameContains(scheduleSearch.getSessionName()))
+                .and(scheduleSearch.getTrainingType() == null ? null : trainingTypeContains(ETrainingType.valueOf(scheduleSearch.getTrainingType())))
+                .and(scheduleSearch.getClazzType() == null ? null : clazzTypeContains(EClazzType.valueOf(scheduleSearch.getClazzType())))
+                .and(scheduleSearch.getClazz() == null ? null : isClazz(scheduleSearch.getClazz()))
+                .and(scheduleSearch.getStartTime() == null || scheduleSearch.getEndTime() == null ? null : timeBetween(scheduleSearch.getStartTime(), scheduleSearch.getEndTime()))
+                .and(scheduleSearch.getTrainers() == null ? null : trainersIn(scheduleSearch.getTrainers()));
+        Page<TrainingSchedule> page = trainingScheduleRepository.findAll(specification, PageRequest.of(pageNum - 1, pageSize, sort));
+
+        return getTrainingScheduleDTOResponsePage(page);
+    }
+
+    private ResponsePage<TrainingScheduleDTO> getTrainingScheduleDTOResponsePage(Page<TrainingSchedule> page) {
+        return new ResponsePage<>(
+                page.getNumber() + 1,
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.getContent()
+                        .stream()
+                        .map(schedule -> {
+                            TrainingScheduleDTO dto = mapper.map(schedule, TrainingScheduleDTO.class);
+                            dto.setOrganizer(
+                                    mapper.map(
+                                            userRepository.findById(schedule.getCreatedBy()).orElse(null),
+                                            UserDTO.class));
+                            return dto;
+                        })
+                        .toList());
     }
 }
