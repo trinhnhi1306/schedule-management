@@ -27,4 +27,6 @@ public interface ITrainingScheduleService {
     TrainingScheduleDTO updateTrainers(TrainingSchedule schedule, List<UserModel> trainers);
 
     ResponsePage<TrainingScheduleDTO>  filterTrainingSchedules(TrainingScheduleSearch scheduleSearch, int pageNum, int pageSize, String sortField, String sortDir);
+
+    List<TrainingScheduleDTO>  filterAllTrainingSchedules(TrainingScheduleSearch scheduleSearch);
 }

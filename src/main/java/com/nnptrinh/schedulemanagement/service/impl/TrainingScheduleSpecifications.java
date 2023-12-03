@@ -32,7 +32,12 @@ public final class TrainingScheduleSpecifications {
     }
 
     public static Specification<TrainingSchedule> timeBetween(LocalDateTime from, LocalDateTime to) {
-        return (root, query, builder) -> builder.between(root.get("startTime"), from, to != null ? to : LocalDateTime.now());
+        if (to == null)
+            return (root, query, builder) -> builder.greaterThanOrEqualTo(root.get("startTime"), from);
+        if (from == null)
+            return (root, query, builder) -> builder.lessThanOrEqualTo(root.get("startTime"), to);
+
+        return (root, query, builder) -> builder.between(root.get("startTime"), from, to);
     }
 
     public static Specification<TrainingSchedule> trainersIn(List<UserModel> trainers) {

@@ -57,6 +57,11 @@ public class TrainingScheduleController {
         return AppUtils.returnJS(HttpStatus.OK, "Retrieve schedule successfully!", trainingScheduleService.filterTrainingSchedules(scheduleSearch, pageNum, pageSize, sortField, sortDir), true);
     }
 
+    @PostMapping("/search/all")
+    public ResponseEntity<ResponseObject> searchAll(@RequestBody TrainingScheduleSearch scheduleSearch) {
+        return AppUtils.returnJS(HttpStatus.OK, "Retrieve schedule successfully!", trainingScheduleService.filterAllTrainingSchedules(scheduleSearch), true);
+    }
+
     @GetMapping("/clazz/{clazzId}")
     public ResponseEntity<ResponseObject> listAllByClazzId(@PathVariable Long clazzId) {
         return AppUtils.returnJS(HttpStatus.OK, "Retrieve list of schedules successfully!", trainingScheduleService.getAllByClazzId(clazzId), true);

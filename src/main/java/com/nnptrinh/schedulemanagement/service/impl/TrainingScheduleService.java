@@ -179,17 +179,37 @@ public class TrainingScheduleService implements ITrainingScheduleService {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
                 ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
 
-        Specification<TrainingSchedule> specification = Specification
+        Page<TrainingSchedule> page = trainingScheduleRepository.findAll(getSpecification(scheduleSearch), PageRequest.of(pageNum - 1, pageSize, sort));
+
+        return getTrainingScheduleDTOResponsePage(page);
+    }
+
+    @Override
+    public List<TrainingScheduleDTO> filterAllTrainingSchedules(TrainingScheduleSearch scheduleSearch) {
+        return trainingScheduleRepository
+                .findAll(getSpecification(scheduleSearch))
+                .stream()
+                .map(schedule -> {
+                    TrainingScheduleDTO dto = mapper.map(schedule, TrainingScheduleDTO.class);
+                    dto.setOrganizer(
+                            mapper.map(
+                                    userRepository.findById(schedule.getCreatedBy()).orElse(null),
+                                    UserDTO.class));
+                    return dto;
+                })
+                .toList();
+    }
+
+    private Specification<TrainingSchedule> getSpecification(TrainingScheduleSearch scheduleSearch) {
+        return Specification
                 .where(scheduleSearch.getSessionName() == null ? null : sessionNameContains(scheduleSearch.getSessionName()))
                 .and(scheduleSearch.getTrainingType() == null ? null : trainingTypeContains(ETrainingType.valueOf(scheduleSearch.getTrainingType())))
                 .and(scheduleSearch.getClazzType() == null ? null : clazzTypeContains(EClazzType.valueOf(scheduleSearch.getClazzType())))
                 .and(scheduleSearch.getClazz() == null ? null : isClazz(scheduleSearch.getClazz()))
-                .and(scheduleSearch.getStartTime() == null || scheduleSearch.getEndTime() == null ? null : timeBetween(scheduleSearch.getStartTime(), scheduleSearch.getEndTime()))
+                .and(scheduleSearch.getStartTime() == null && scheduleSearch.getEndTime() == null ? null : timeBetween(scheduleSearch.getStartTime(), scheduleSearch.getEndTime()))
                 .and(scheduleSearch.getTrainers() == null ? null : trainersIn(scheduleSearch.getTrainers()));
-        Page<TrainingSchedule> page = trainingScheduleRepository.findAll(specification, PageRequest.of(pageNum - 1, pageSize, sort));
-
-        return getTrainingScheduleDTOResponsePage(page);
     }
+
 
     private ResponsePage<TrainingScheduleDTO> getTrainingScheduleDTOResponsePage(Page<TrainingSchedule> page) {
         return new ResponsePage<>(
